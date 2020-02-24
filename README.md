@@ -4,7 +4,7 @@
 ## Resources
 - [*The Rust Programming Language*](https://doc.rust-lang.org/book/)
 - [*Physically-Based Rendering: From Theory to Implementation* (3rd ed.)](http://pbr-book.org/)
-- [*Ray Tracing in One Weekend* series]
+- [*Ray Tracing in One Weekend* series](https://raytracing.github.io/)
 
 ## Log
 All of the times are a cumulative total.
