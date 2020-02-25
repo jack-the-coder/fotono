@@ -22,7 +22,7 @@ Whew! Today's been a whirlwind of compiler errors. Rust happens to have the most
 
 The program now produces the sky image from the fourth section of *Ray Tracing in One Weekend*. I ended up using the `cgmath` crate for a nice implementation of `Vector3` instead of doing it myself. I might have learned more by building it by hand, but at the same time the `cgmath` implementation is pretty nice and offers some room to grow. I did make a `Ray` struct that uses `Vector3` under the hood. 
 
-I don't forecast having quite this much time the rest of this week, so maybe I'll be at the "basic ray tracer" stage this weekend.
+I don't forecast having quite this much time the rest of this week, so maybe I'll be at the "basic ray tracer" stage this weekend. Also, I'm thinking we're going to have to store the current image as a mutable 2D array of `u8`s so that each operation (painting the sky, tracing rays, tracing more rays, etc.) has something to write to other than the image itself. Maybe this is premature optimization, maybe not.
 
 ### Feb 23 2020
 | Item                                  | Total time spent learning (hours) |
