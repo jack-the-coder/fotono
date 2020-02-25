@@ -1,33 +1,66 @@
-extern crate image;
-extern crate num_complex;
+use image;
+use cgmath::Vector3;
+use std::f32;
+
+// Note on coordinate system: positive x is right, y is up, z is away
+// `image` crate has its own separate 2D coordinate system
+// TODO: Start real documentation
+
+const IMG_X: u32 = 4000; // dimensions of image
+const IMG_Y: u32 = 3000;
+
+#[derive(Debug)]
+struct Ray {
+	origin: Vector3<f32>,
+	direction: Vector3<f32>,
+}
+
+impl Ray {
+	fn new(origin: Vector3<f32>, direction: Vector3<f32>) -> Ray {
+		Ray { origin, direction }
+	}
+	fn point_at_parameter(&self, t: f32) -> Vector3<f32> {
+		self.origin + t * self.direction
+	}
+
+	// Returns the unit vector of the direction of a ray
+	fn unit_direction(&self) -> Vector3<f32> {
+		let sum = self.direction.x.powi(2) + self.direction.y.powi(2) + self.direction.z.powi(2);
+		let length = sum.sqrt();
+		self.direction / length
+	}
+}
+
+fn color(r: &Ray) -> Vector3<f32> {
+	let u_direction = r.unit_direction();
+	let t: f32 = 0.5 * (u_direction.y + 1.0);
+
+	// blendedValue=(1−t)∗startValue+t∗endValue,
+	(1.0-t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
+}
 
 fn main() {
-    const IMG_X: u32 = 5000;
-    const IMG_Y: u32 = 5000;
-
-    let scalex = 3.0 / IMG_X as f32;
-    let scaley = 3.0 / IMG_Y as f32;
+	let lower_left_corner = Vector3::new(IMG_X as f32/-100.0, IMG_Y as f32/-100.0, IMG_Y as f32/-100.0);
+	let horizontal = Vector3::new(IMG_X as f32/50.0, 0.0, 0.0);
+	let vertical = Vector3::new(0.0, IMG_X as f32/100.0, 0.0);
+	let origin = Vector3::new(0.0, 0.0, 0.0);
 
     let mut imgbuf = image::ImageBuffer::new(IMG_X, IMG_Y);
 
     for x in 0..IMG_X {
         for y in 0..IMG_Y {
-            let cx = y as f32 * scalex - 1.5;
-            let cy = x as f32 * scaley - 1.5;
+        	let u = y as f32 / IMG_X as f32;
+        	let v = x as f32 / IMG_Y as f32;
+        	let ray = Ray::new(origin, lower_left_corner + u*horizontal + v*vertical);
 
-            let c = num_complex::Complex::new(-0.4, 0.6);
-            let mut z = num_complex::Complex::new(cx, cy);
-
-            let mut i = 0;
-            while i < 255 && z.norm() <= 2.0 {
-                z = z * z + c;
-                i += 1;
-            }
+        	let col = color(&ray);
 
             let pixel = imgbuf.get_pixel_mut(x, y);
             let image::Rgb(data) = *pixel;
 
-            *pixel = image::Rgb([data[0], data[2], i as u8]); // blue
+            let i = x*y;
+
+            *pixel = image::Rgb([(255.99 * col.x) as u8, (255.99 * col.y) as u8, (255.99 * col.z) as u8]); // green
         }
     }
 
