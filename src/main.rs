@@ -32,23 +32,35 @@ impl Ray {
 	}
 }
 
-// Returns whether a sphere with a given center and radius is hit by a given ray
-fn hit_sphere(center: &Vector3<f32>, radius: f32, ray: &Ray) -> bool {
+fn unit_vector(v: &Vector3<f32>) -> Vector3<f32> {
+	let sum = v.x.powi(2) + v.y.powi(2) + v.z.powi(2);
+	let length = sum.sqrt();
+	v / length
+}
+
+// Returns the surface normal of the collision between a ray and a sphere of given center and radius
+fn hit_sphere(center: &Vector3<f32>, radius: f32, ray: &Ray) -> f32 {
     let oc = ray.origin - center;
     let a = cgmath::dot(ray.direction, ray.direction);
     // let b = IMG_X as f32/-100.0 * cgmath::dot(oc, ray.direction);
     let b = 2.0 * cgmath::dot(oc, ray.direction);
     let c = cgmath::dot(oc, oc) - radius * radius;
     let discriminant = b*b - 4.0*a*c;
-    discriminant > 0.0
+    if discriminant < 0.0 {
+    	return -1.0;
+    } else {
+    	return (-b - discriminant.sqrt()) / (2.0 * a);
+    }
 }
 
 fn color(r: &Ray) -> Vector3<f32> {
-    if hit_sphere(&Vector3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Vector3::new(0.8, 0.2, 0.2);
+    let mut t = hit_sphere(&Vector3::new(0.0, 0.0, -1.0), 0.5, r);
+    if t > 0.0 {
+    	let n = unit_vector(&(r.point_at_parameter(t) - Vector3::new(0.0,0.0,-1.0)));
+    	return 0.5 * Vector3::new(n.x + 1.0, n.y + 1.0, n.z + 1.0);
     }
 	let u_direction = r.unit_direction();
-	let t: f32 = 0.5 * (u_direction.y + 1.0);
+	t = 0.5 * (u_direction.y + 1.0);
 
 	// blendedValue=(1−t)∗startValue+t∗endValue,
     // aka a linear interpolation
