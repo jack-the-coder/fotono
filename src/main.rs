@@ -58,9 +58,7 @@ fn main() {
             let pixel = imgbuf.get_pixel_mut(x, y);
             let image::Rgb(data) = *pixel;
 
-            let i = x*y;
-
-            *pixel = image::Rgb([(255.99 * col.x) as u8, (255.99 * col.y) as u8, (255.99 * col.z) as u8]); // green
+            *pixel = image::Rgb([(255.99 * col.x) as u8, (255.99 * col.y) as u8, (255.99 * col.z) as u8]); // render blue sky
         }
     }
 
