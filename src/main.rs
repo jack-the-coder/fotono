@@ -1,5 +1,6 @@
 use image;
 use cgmath::Vector3;
+use cgmath;
 use std::f32;
 
 // Note on coordinate system: positive x is right, y is up, z is away
@@ -31,18 +32,33 @@ impl Ray {
 	}
 }
 
+// Returns whether a sphere with a given center and radius is hit by a given ray
+fn hit_sphere(center: &Vector3<f32>, radius: f32, ray: &Ray) -> bool {
+    let oc = ray.origin - center;
+    let a = cgmath::dot(ray.direction, ray.direction);
+    // let b = IMG_X as f32/-100.0 * cgmath::dot(oc, ray.direction);
+    let b = 2.0 * cgmath::dot(oc, ray.direction);
+    let c = cgmath::dot(oc, oc) - radius * radius;
+    let discriminant = b*b - 4.0*a*c;
+    discriminant > 0.0
+}
+
 fn color(r: &Ray) -> Vector3<f32> {
+    if hit_sphere(&Vector3::new(0.0, 0.0, -1.0), 0.5, r) {
+        return Vector3::new(0.8, 0.2, 0.2);
+    }
 	let u_direction = r.unit_direction();
 	let t: f32 = 0.5 * (u_direction.y + 1.0);
 
 	// blendedValue=(1−t)∗startValue+t∗endValue,
+    // aka a linear interpolation
 	(1.0-t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
 }
 
 fn main() {
 	let lower_left_corner = Vector3::new(IMG_X as f32/-100.0, IMG_Y as f32/-100.0, IMG_Y as f32/-100.0);
 	let horizontal = Vector3::new(IMG_X as f32/50.0, 0.0, 0.0);
-	let vertical = Vector3::new(0.0, IMG_X as f32/100.0, 0.0);
+	let vertical = Vector3::new(0.0, IMG_Y as f32/50.0, 0.0);
 	let origin = Vector3::new(0.0, 0.0, 0.0);
 
     let mut imgbuf = image::ImageBuffer::new(IMG_X, IMG_Y);
